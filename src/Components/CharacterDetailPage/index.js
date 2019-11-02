@@ -13,8 +13,8 @@ function CharacterDetailPage(props) {
     const { id } = props.match.params;
     useEffect(() => {
         API.get(`people/${id}`).then(response => {
-            console.log('Fetching data...', response.data.results[0]);
-            setData(response.data.results[0]);
+            console.log('Fetching data...', response.data);
+            setData(response.data);
         });
     }, []);
 

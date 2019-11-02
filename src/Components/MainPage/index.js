@@ -1,11 +1,8 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import _ from 'lodash';
-import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
-// import SearchIcon from '@material-ui/icons/Search';
 import FilteredList from '../FilteredList';
-// import SearchInput from '../SearchInput';
-import API from '../../Api/StarWars';
+import SearchInput from '../SearchInput';
 
 const useStyles = makeStyles(theme => ({
     button: {
@@ -14,33 +11,20 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-let data;
-
 function MainPage() {
     const classes = useStyles();
-    const [filters, setFilters] = useState([]);
-
-    useEffect(() => {
-        API.get('people').then(response => {
-            console.log('Fetching data...', response);
-            data = response.data;
-
-            let aux = {};
-            _.forEach(data[0], (d, index) => {
-                aux[index] = "";
-            });
-            aux['all'] = "";
-            setFilters(aux);
-        });
-
-
-    }, []);
+    const [filters, setFilters] = useState({ 'race': '', 'character': '', 'planets': '', 'starships': '' });
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                {['race', 'character', 'planets', 'starships'].map((searchCriteria) => {
+                    return <SearchInput key={searchCriteria} searchCriteria={searchCriteria} filters={filters} setFilters={setFilters} />
+                })}
+            </div>
             <div style={{ width: '60vw' }}>
-                <FilteredList data={data} filters={filters} />
+                <FilteredList filters={filters} />
             </div>
         </div>
 

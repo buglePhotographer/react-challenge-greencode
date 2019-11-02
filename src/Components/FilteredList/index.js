@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import _ from 'lodash';
 import { Link } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -25,28 +26,35 @@ const useStyles = makeStyles({
 
 function FilteredList(props) {
     const classes = useStyles();
-    const { data } = props;
+    const { filters } = props;
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const dataToShow = data && data.results ? data.results : [];
+    const [data, setData] = useState([]);
 
+    console.log(filters);
+
+    useEffect(() => {
+        if(filters.character){
+            API.get(`people/?search=${filters.character}`).then(response => {
+                setData(response.data);
+            });
+        }
+        else {
+            API.get(`people/?page=${page + 1}`).then(response => {
+                setData(response.data);
+            });
+        }
+    }, [page, filters]);
 
 
     const handleChangePage = (event, newPage) => {
-        console.log(newPage);
-        getPage(newPage + 1);
         setPage(newPage);
+        
     };
 
-    const handleChangeRowsPerPage = event => {
+    const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
-
-    const getPage = (pageToLoad) => {
-        API.get(`people/?page=${pageToLoad}`).then((response) => {
-            console.log(response);
-        });
     };
 
     return (
@@ -63,9 +71,8 @@ function FilteredList(props) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {dataToShow && dataToShow
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map(row => (
+                    {data && data.results && data.results
+                        .map((row, index) => (
                             <TableRow key={row.url}>
                                 <TableCell component="th" scope="row">
                                     {row.name}
@@ -74,7 +81,7 @@ function FilteredList(props) {
                                 <TableCell align="center">{row.mass}</TableCell>
                                 <TableCell align="center">{row.hair_color}</TableCell>
                                 <TableCell align="center">{row.skin_color}</TableCell>
-                                <TableCell align="center"><Link to={`/congressmanDetail/${row.id}`}>View more</Link></TableCell>
+                                <TableCell align="center"><Link to={`/characterDetail/${page.toString() + 1}`}>View more</Link></TableCell>
                             </TableRow>
                         ))}
                 </TableBody>
